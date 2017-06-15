@@ -205,10 +205,10 @@ function help() {
 
 help
 
-#find nom Vidalies | limit 3 7
-#find nom Vidalies | set prenom Fen | save
+#find nom Toto | limit 3 7
+#find nom Toto | set prenom Titi | save
 #find id "1" | set prenom Mathieu | save
 #find id 2 | delete
-#new "Vidalies;Mat;25;25;rue Gustave Gaillard;33700;Merignac;France" | save
+#new "Toto;Mathieu;25;25;rue du truc;33700;Merignac;France" | save
 #find id 11 | delete
 
