@@ -1,4 +1,22 @@
 #! /bin/bash
+#############################################################
+# Author : Mathieu Vidalies https://github.com/Furinkazan33
+#############################################################
+# Script to handle csv files like :
+##
+#ID;NAME;AGE;CITY
+#1;Mathieu;35;Bordeaux
+#2;Gertrude;102;Soulac
+##
+#############################################################
+#TODO: Translate to English
+#TODO: Seems like the save function is not working
+#############################################################
+# Example :
+# . csvedit test.csv
+# find
+# find ID 1 | set AGE 55
+#############################################################
 
 #set -e
 #set -o pipefail
@@ -204,11 +222,4 @@ function help() {
 }
 
 help
-
-#find nom Toto | limit 3 7
-#find nom Toto | set prenom Titi | save
-#find id "1" | set prenom Mathieu | save
-#find id 2 | delete
-#new "Toto;Mathieu;25;25;rue du truc;33700;Merignac;France" | save
-#find id 11 | delete
 

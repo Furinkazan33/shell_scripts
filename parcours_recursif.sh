@@ -1,39 +1,44 @@
 #!/bin/bash
+# Liste tous les fichiers d'un dossier récursivement
 
-# Fichier en sortie
-output=`pwd`/out.txt;
-# Création du fichier en sortie
-> $output;
+#TODO: manage options (getopt)
+FOLDER=$1
+DEPTH=$2
+FULLPATH=$3
 
-# Parcours récursivement un dossier
-# parcours_dossier "dossier" "profondeur"
-function parcours_dossier ()
-{
-    # Debug
-    echo "Profondeur: $2";
-    
-    origine=`pwd`;
-    cd "$origine/$1";
-    dossier="$origine/$1";
+MAX_DEPTH=10000
 
-    for f in *; do
-    
-        # Debug
-        echo "$dossier/$f";
-        
-        if [ -f "$dossier/$f" ]; then
-        
-            echo "$f" >> $output;
-            
-        elif [ -d "$dossier/$f" ]; then
-        
-            parcours_dossier "$f" `expr $2 + 1`;
-            
-        fi
-        
-    done
+function parcours_dossier_rec() {
+  local folder=$1
+  local depth=$2
+  local maxdepth=$3
+
+  [ $depth -eq $maxdepth ] && return 0
+
+  cd "$folder"
+  path=`pwd`
+
+  for file in *; do
+
+    if [ -f "$path/$file" ]; then
+      [ -z $FULLPATH ] && echo "$file" || echo "$path/$file"
+
+    elif [ -d "$path/$file" ]; then
+      parcours_dossier "$file" `expr $depth + 1`
+
+    fi
+
+  done
 }
 
-parcours_dossier "$1" "0";
-gzip $output;
+function parcours_dossier() {
+  local folder="$1"
+  local depth=$2
+
+  [ -z $depth ] && depth=$MAX_DEPTH
+
+  parcours_dossier_rec "$folder" 0 $depth
+}
+
+parcours_dossier "$FOLDER" $DEPTH
 
