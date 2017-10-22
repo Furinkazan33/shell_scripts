@@ -1,8 +1,10 @@
 #!/bin/bash
 
+EMAIL="yourmail@example.com"
+
 # Send mail
 sm()  {
-    TO=$([ -z "$2" ] && echo "furinkazanspirit@free.fr" || echo "$2")
+    TO=$([ -z "$2" ] && echo "$EMAIL" || echo "$2")
     SUBJECT="Envoi d'un fichier"
     FILE=$1
     
@@ -27,10 +29,10 @@ my_help()
 	rm -f tmp_my_help
 }
 
-#Renvoi toutes les positions du pattern dans la chaîne
+# Echoes every positions of the searched pattern in the string
 positions()
 {
-    [[ $# -lt 2 ]] && echo "Usage: positions pattern string" && return 1
+    [[ $# -lt 2 ]] && { echo "Usage: positions <pattern> <string>"; return 1; }
 
     l_pattern=${#1}
     l_string=${#2}
