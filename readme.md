@@ -7,7 +7,6 @@ Collection of shell scripts.
 | Script | Description |
 | ------ | ------ |
 | Mailto.sh |  |
-| csvedit.sh |  |
 | library.sh |  |
 | parcours_recursif.sh |  |
 |  |  |
