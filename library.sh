@@ -8,14 +8,6 @@ SUCCESS=0
 FAILURE=-1
 
 
-popup_dialog() {
-  zenity --entry
-  #zenity --calendar
-  #zenity --scale
-}
-answer=$(popup_dialog)
-
-
 check_root() {
   if [ "$UID" -ne "$ROOT_UID" ]; then
     echo "Must be root to run this script."
