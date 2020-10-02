@@ -63,31 +63,6 @@ is_digit()
     return 1
 }
 
-tlv_find()
-{
-    [[ $# -lt 1 ]] && echo "Usage: find_tlv id" && return 1
-    OLDIFS=$IFS
-    IFS=$'\n'
-
-    dico=$(grep -E "^($(atoi $1);)" $HOME/bin/perl/conf/DicoTelem.txt) && echo $dico
-    l_dico=$(echo $dico | cut -f4 -d";")
-
-    while read tlv; do
-        res=$(echo $tlv | my_cut $1 50)
-
-        for r in $res; do
-            l=$(echo $r | cut -c-5-7)
-
-      	    is_digit $l && [[ $(atoi $l) -ne 0 ]] && [[ $(atoi $l) -le $l_dico ]] && \
-            donnee=$(echo $r | cut -c-8-$(expr 8 + $(atoi $l) - 1)) && \
-            echo -e "id:$1\tlongueur:$(atoi $l)\tdonnee:$donnee"
-        done
-
-    done < "/dev/stdin"
-
-    IFS=$OLDIFS
-}
-
 vider_favoris() {
     dirs -c
 }
@@ -107,11 +82,4 @@ go() {
     dir=$(dirs +$1)
     [[ "$dir" == "~" ]] && cd || cd $dir
 }
-
-my_gcc() { 
-    base=`basename $1`;
-    fic=${base%%.*};
-    gcc $1 -o $C_BIN/$fic;
-    echo "binairee crÃ©Ã© $C_BIN/$fic"; 
-} 
 
