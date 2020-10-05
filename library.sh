@@ -7,18 +7,22 @@ MAXRETVAL=255
 SUCCESS=0
 FAILURE=-1
 
-
-check_root() {
-  if [ "$UID" -ne "$ROOT_UID" ]; then
-    echo "Must be root to run this script."
-    exit $E_NOTROOT
-  fi
+function is_root() {
+    [ "$UID" -ne "$ROOT_UID" ] && return 1
+    return 0
 }
 
+function check_root() {
+    echo "Checking if root"
+    is_root && { echo "==> OK"; return 0; }
+    
+    echo " ==> KO"
+    echo
+    echo "Must be root to run this script."
+    exit $E_NOTROOT
+}
 
-create_temp_filename() {
-  prefix=temp
-  suffix=`eval date +%s`
-  echo "$prefix.$suffix"
+function get_tmp_string() {
+  echo `eval date +%s`
 }
 
