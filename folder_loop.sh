@@ -36,63 +36,77 @@ function _folder_processing() {
 }
 
 ############################################################
-# Filter function, do not edit
+# Filter function - DO NOT EDIT
 ############################################################
 function _file_ignore() {
   keep=$1
   file=$2
-  pattern=$3
+  shift 2
+  patterns=$*
 
-  # No pattern to filter => keeping files
-  [ -z "$pattern" ] && return 1
+  for p in $patterns; do
+    
+    # Matching pattern
+    [[ "${file}" =~ $p ]] && {
 
-  # There is a poattern
-  [ ! -z "$pattern" ] && {
+      # Keeping the file
+      [ $keep = "0" ] && return 1
 
-    # Do we keep the files if matching pattern ?
-    [ $keep = "0" ] && {
-      [[ "${file}" =~ $pattern ]] && return 1 || return 0
+      # Ignoring the file
+      [ $keep = "1" ] && return 0
     }
 
-    # Do we exclude the files if matching pattern ?
-    [ $keep = "1" ] && { 
-      [[ "${file}" =~ $pattern ]] && return 0 || return 1
-    }
-  }
+  done
+
+  # No matching pattern
+  [ $keep = "0" ] && return 0
+  [ $keep = "1" ] && return 1
 }
 
 ############################################################
-# The algorithm - do not EDIT
+# The algorithm - DO NOT EDIT
 # Do not use this function directly
 ############################################################
 # Run through every folder of the given path
 ############################################################
 function _tpl_func_rec() {
   local keep=$1
-  local path=$2
-  local depth=$3
-  local maxdepth=$4
-  local pattern=$5
+  # 0 => filter both files and folders, 1 => only files, 2 => only folders
+  local f_option=$2
+  local path=$3
+  local depth=$4
+  local maxdepth=$5
+  shift 5
+  local patterns=$*
+
 
   [ $depth -ge $maxdepth ] && return 0
 
-  for file in `ls -A ${path}`; do
-
-    # Filtering
-    _file_ignore $keep ${file} $pattern && continue
-    
+  for file in `ls -A ${path}`; do    
 
     # File processing
     [ -f "${path}/${file}" ] && { 
-      _file_processing ${path}/${file}
-      continue
+      
+      # Filtering
+      ([ $f_option -eq 0 ] || [ $f_option -eq 1 ]) && {
+        _file_ignore $keep ${file} $patterns && continue
+      }
+      
+      _file_processing ${path}/${file} && continue
     }
     
 
     # Folder processing
     [ -d "${path}/${file}" ] && { 
+
+      # Filtering
+      ([ $f_option -eq 0 ] || [ $f_option -eq 2 ]) && {
+        _file_ignore $keep ${file} $patterns && continue
+      }
+
       _folder_processing ${path}/${file}
-      _tpl_func_rec $keep ${path}/${file} `expr $depth + 1` $maxdepth
+      
+      _tpl_func_rec $keep $f_option ${path}/${file} `expr $depth + 1` $maxdepth $patterns
     }
 
   done
@@ -106,7 +120,7 @@ function _tpl_func_rec() {
 function tpl_func() {
   
   usage() {
-    echo "Usage: tpl_func [-h for help] [-d <maxdepth> (default is 10000)] [-i|-k <pattern>] <path>"
+    echo "Usage: tpl_func [-h for help] [-d <maxdepth> (default is 10000)] [-i|-k <pattern>] [-f|-F] <path>"
   }
 
   help() {
@@ -116,28 +130,47 @@ function tpl_func() {
     echo "------------"
     echo "Parameters :"
     echo "------------"
-    echo "-h           : (optionnal) display this help"
-    echo "-d <depth>   : (optionnal) maximum depth to explore"
-    echo "-i <pattern> : (optionnal) regular expression to ignore files and folders"
-    echo "-k <pattern> : (optionnal) regular expression to keep files and folders"
-    echo "<path>       : the path to explore"
+    echo "-h                 : (optionnal) display this help"
+    echo "-d <depth>         : (optionnal) maximum depth to explore (default is 10000)"
+    echo "-i <patterns list> : (optionnal) regular expressions to ignore files and folders"
+    echo "-k <patterns list> : (optionnal) regular expressions to keep files and folders"
+    echo "-f                 : (optionnal) Filtering only on files."
+    echo "                     When no option -i or -k is given, this will ignore all files"
+    echo "-F                 : (optionnal) Filtering only on folders"
+    echo "                     When no option -i or -k is given, this will ignore all folders"
+    echo "<path>             : the path to explore"
     echo
     echo "---------------"
     echo "Exemple calls :"
     echo "---------------"
-    echo "Keeping only when starting with \".bash\""
-    echo 'tpl_func -d1 -k"^.bash" $HOME'
+    echo 'Keeping only when starting with ".bash"'
+    echo 'tpl_func -d1 -k"^\.bash" $HOME'
     echo
-    echo "Ignoring name starting with .bash"
-    echo 'tpl_func -d1 -i"^.bash" $HOME'
+    echo 'Ignoring name starting with ".bash"'
+    echo 'tpl_func -d1 -i"^\.bash" $HOME'
     echo
-    echo "Ignoring name exactly \".local\""
-    echo 'tpl_func -d1 -i"^.local$" $HOME'
+    echo 'Ignoring name exactly ".local"'
+    echo 'tpl_func -d1 -i"^\.local$" $HOME'
+    echo
+    echo 'Ignoring files starting with ".v" or ".s" or containing "ash" or ending with "s"'
+    echo 'tpl_func -d1 -i"^\.v ^\.s ash s$" $HOME'
+    echo 
+    echo 'Filtering on on files'
+    echo 'tpl_func -d3 -i"o" -f $HOME'
+    echo 
+    echo 'Ignoring folders starting with "."'
+    echo 'tpl_func -d3 -i"^\." -F $HOME'
+    echo
+    echo 'Ignoring all folders'
+    echo 'tpl_func -i"." -F $HOME or tpl_func -F $HOME'
+    echo
+    echo 'Ignoring all files'
+    echo 'tpl_func -d1 -f $HOME'
   }
   
-  local OPTIND option path maxdepth keep pattern
+  local OPTIND option path maxdepth keep pattern f_option
 
-  while getopts "hd:i:k:" option; do
+  while getopts "hd:i:k:fF" option; do
       case "${option}" in
           h)
               help && return 0
@@ -153,6 +186,14 @@ function tpl_func() {
               keep=0
               pattern="${OPTARG}"
               ;;
+          f)
+              # Filter only files
+              f_option=1
+              ;;
+          F)
+              # Filter only folders
+              f_option=2
+              ;;
           *)
               usage && return 1
               ;;
@@ -166,10 +207,11 @@ function tpl_func() {
 
   path="$1"
   [ -z $maxdepth ] && maxdepth=10000
-  [ -z "$keep" ] && keep=1
+  [ -z "$keep" ] && keep=0
+  [ -z "$f_option" ] && f_option=0
 
   # Starting the run on the current depth (0)
-  _tpl_func_rec $keep ${path} 0 $maxdepth ${pattern}
+  _tpl_func_rec $keep $f_option ${path} 0 $maxdepth ${pattern}
 }
 
 
