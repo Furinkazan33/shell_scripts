@@ -43,4 +43,20 @@ is_root() {
     return 0
 }
 
+accepted()
+{
+  [ -z "$1" ] || [ "$1" == "y" ] && return 0
+  return 1
+}
+
+accept()
+{
+  echoc 0 PURPLE "$* ? (y/n)"
+  read answer
+
+  accepted "$answer" && return 0
+
+  return 1
+}
+
 

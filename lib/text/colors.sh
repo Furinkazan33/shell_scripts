@@ -6,6 +6,7 @@
 # Colors
 #############################################################
 
+unset COLORS
 declare -A COLORS
 COLORS[NO_COLOUR]="\033[0m"
 COLORS[GREY]="\033[1;30m"
@@ -20,6 +21,7 @@ COLORS[BLACK]="\033[1;38m"
 COLORS[OK]=${COLORS[GREEN]}
 COLORS[KO]=${COLORS[RED]}
 
+
 _color_list()
 {
   for color in ${!COLORS[@]}; do
@@ -27,26 +29,16 @@ _color_list()
   done | sort
 }
 
-_color()
-{
-  [ -z "$1" ] && return 1
-
-  echo "${COLORS[$1]}"
-  
-  return 0
-}
-
 c_echo()
 {
   local usage="Usage: c_echo [-h] <color> <message>"
-
-  [ "$1" == "-h" ] && { echo $usage;_color_list; return 0; }
-
-  local color=$(_color $1)
+  ([ "$1" == "-h" ] || [ $# -lt 2 ]) && { echo $usage;_color_list; return 0; }
+  
+  local color=${COLORS[$1]}
   local message=${*:2}
-  local end_color=$(_color NO_COLOUR)
- 
-  ([ $# -lt 2 ] || [ -z "$color" ] || [ -z "$message" ]) && { echo $usage; return 1; } 
+  local end_color=${COLORS[NO_COLOUR]}
+
+  ([ -z "$color" ] || [ -z "$message" ]) && { echo $usage; return 1; } 
 
   echo -e "$color$message$end_color"
 
@@ -57,8 +49,8 @@ c_echoi()
 {
   local usage="Usage: c_echoi [-h] <number of indent> <color> <message>"
   [ "$1" == "-h" ] && { echo $usage; _color_list; return 0; }
-  
-  local color=$(_color $2)
+
+  local color=${COLORS[$2]}
 
   ([ $# -lt 3 ] || [[ ! $1 =~ ^[0-9]+$ ]] || [ -z $color ]) && { echo $usage; return 1; }
 

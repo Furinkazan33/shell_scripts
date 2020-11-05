@@ -14,7 +14,7 @@ dep_constants() {
 }
 
 
-dep_source_file() {
+dep_find() {
   local file="$1"
 
   [ -f $file ] && { source $file; return 0; }
@@ -34,8 +34,9 @@ dep_source_file() {
   [ $n -eq 0 ] && { echo "File not found in \$LIB=$LIB : $file"; return 1; }
   [ $n -gt 1 ] && { echo "$n files found in \$LIB=$LIB : "; echo "$files"; return 1; }
 
-  echo "1 file found : $found"
-  source "$found"
+  #echo "1 file found : $found"
+  echo "$found"
+
   return 0
 }
 
