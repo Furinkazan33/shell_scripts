@@ -1,14 +1,15 @@
 ## Synopsis
 
-Collection of shell scripts.
+Shell library.
 
 ## Scripts list
 
-| Script | Description |
+| Folder | Description |
 | ------ | ------ |
-| library.sh | Usefull variables and functions |
-| folder_loop.sh | Template function to loop through folders with filtering options and process treatment on the files and folders selected |
+| text | text and string manipulation |
+| file | files and folders manipulation |
+| lang | languages utility functions |
+| structures | structures manipulation |
+| project | project functions |
+| vim | vim helpers |
 |  |  |
-|  |  |
-
-
