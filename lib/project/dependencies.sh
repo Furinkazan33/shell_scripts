@@ -18,27 +18,24 @@ dep_constants() {
 
 dep_find() {
   local file="$1"
-
-  [ -f $file ] && { source $file; return 0; }
   
   dep_check_constants
-
-  [ -f $LIB/$file ] && { source $LIB/$file; return 0; }
-
-  [ ! "$file" == `basename $file` ] && {
-    echo "Path not found : $LIB/$file"
-    echo "Correct $file or try with the filename only : `basename $file`"
-    return 1
-  }
+  
+  [ -f $file ] && { echo $file; return 0; } 
+  [ -f $LIB/$file ] && { echo $LIB/$file; return 0; }
 
   local found=$(find $LIB -type f -name $file)
   local n=$(echo "$found" | wc -w)
   [ $n -eq 0 ] && { echo "File not found in \$LIB=$LIB : $file"; return 1; }
   [ $n -gt 1 ] && { echo "$n files found in \$LIB=$LIB : "; echo "$files"; return 1; }
-    
-  echo "$found"
-
-  return 0
+  [ $n -eq 1 ] && { echo "$found"; return 0; }
 }
 
 
+dep_add() {
+  local dep=$(dep_find $*) && { source $dep; return 0; } || { return 1; }
+}
+
+dep_exist() {
+  dep_find $* $> /dev/null && return 0 || return 1;
+}
