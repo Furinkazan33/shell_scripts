@@ -1,4 +1,6 @@
-
+# This script is meant to manage projects dependencies.
+# The main function here is dep_find that looks for dependencies 
+# in the $LIB folder and sub-folders given the file name
 
 dep_check_constants() {
   [ -z "$LIB" ] && { echo "\$LIB not set !"; return 1; }
@@ -33,8 +35,7 @@ dep_find() {
   local n=$(echo "$found" | wc -w)
   [ $n -eq 0 ] && { echo "File not found in \$LIB=$LIB : $file"; return 1; }
   [ $n -gt 1 ] && { echo "$n files found in \$LIB=$LIB : "; echo "$files"; return 1; }
-
-  #echo "1 file found : $found"
+    
   echo "$found"
 
   return 0
